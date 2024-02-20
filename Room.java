@@ -9,8 +9,9 @@ class Room {
         numberCount =+ 1;
         this.roomNumber = numberCount;
         this.area = area;
-        this.name = name;
+        this.name = "Room: " + name;
     }
+
     public String getName() {return name;}
     public void setName(String name) {this.name = name;}
     public int getRoomNumber() { return roomNumber; }

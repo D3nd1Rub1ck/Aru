@@ -5,7 +5,7 @@ class City {
     private String name;
     private List<Building> buildings = new ArrayList<>();
 
-    public City(String name) { this.name = name; }
+    public City(String name) { this.name = "City:" + name; }
     
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
@@ -28,7 +28,7 @@ class City {
             building.printBuilding();
         }
     }
-    
+
     @Override
     public String toString() {
         return name;

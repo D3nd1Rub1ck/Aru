@@ -50,7 +50,9 @@ class TreeGUI extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 String buildingName = JOptionPane.showInputDialog("Enter building name:");
                 if (buildingName != null && !buildingName.isEmpty()) {
+                    
                     Building building = new Building(buildingName);
+                    building.printBuilding();
                     DefaultMutableTreeNode buildingNode = new DefaultMutableTreeNode(building);
                     if (selectedNode != null && selectedNode.getUserObject() instanceof City) {
                         selectedNode.add(buildingNode);

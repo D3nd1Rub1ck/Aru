@@ -6,16 +6,21 @@ class Building {
     private String streetName;
     private String houseNumber;
     private double basicMonthlyPaymentPerSqM;
-    private List<Room> rooms = new ArrayList<>();
-
+    //private static Room rum = new Room("testRoom", 100);
+    private List <Room> rooms = new ArrayList<>();
+    
+    /* 
     public Building(String streetName, String houseNumber, double basicMonthlyPaymentPerSqM) {
         this.streetName = streetName;
         this.houseNumber = houseNumber;
         this.basicMonthlyPaymentPerSqM = basicMonthlyPaymentPerSqM;
     }
-
+    */
     public Building(String name) {
-        this.name = name;
+        this.name = "Building" + name;
+        this.streetName = "streetName";
+        this.houseNumber = "houseNumber";
+        this.basicMonthlyPaymentPerSqM = 100.0;
     }
 
     public String getStreetName() { return streetName; }

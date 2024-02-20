@@ -16,8 +16,9 @@ class Building {
         this.basicMonthlyPaymentPerSqM = basicMonthlyPaymentPerSqM;
     }
     */
+    
     public Building(String name) {
-        this.name = "Building" + name;
+        this.name = "Building: " + name;
         this.streetName = "streetName";
         this.houseNumber = "houseNumber";
         this.basicMonthlyPaymentPerSqM = 100.0;

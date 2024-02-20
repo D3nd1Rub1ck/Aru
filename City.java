@@ -28,4 +28,9 @@ class City {
             building.printBuilding();
         }
     }
+    
+    @Override
+    public String toString() {
+        return name;
+    }
 }

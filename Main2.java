@@ -67,8 +67,9 @@ class TreeGUI extends JFrame {
         addRoomButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 String roomName = JOptionPane.showInputDialog("Enter room name:");
+                //int roomArea = JOptionPane.showInputDialog("Enter room name:");
                 if (roomName != null && !roomName.isEmpty()) {
-                    Room room = new Room(roomName);
+                    Room room = new Room(roomName, 10);
                     DefaultMutableTreeNode roomNode = new DefaultMutableTreeNode(room);
                     if (selectedNode != null && selectedNode.getUserObject() instanceof Building) {
                         selectedNode.add(roomNode);
@@ -107,94 +108,5 @@ class TreeGUI extends JFrame {
         getContentPane().add(scrollPane, BorderLayout.CENTER);
 
         setVisible(true);
-    }
-}
-
-class City {
-    private String name;
-    private List<Building> buildings = new ArrayList<>();
-
-    public City(String name) {
-        this.name = name;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public List<Building> getBuildings() {
-        return buildings;
-    }
-
-    public void addBuilding(Building building) {
-        buildings.add(building);
-    }
-
-    public void removeBuilding(Building building) {
-        buildings.remove(building);
-    }
-
-    @Override
-    public String toString() {
-        return name;
-    }
-}
-
-class Building {
-    private String name;
-    private List<Room> rooms = new ArrayList<>();
-
-    public Building(String name) {
-        this.name = name;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public List<Room> getRooms() {
-        return rooms;
-    }
-
-    public void addRoom(Room room) {
-        rooms.add(room);
-    }
-
-    public void removeRoom(Room room) {
-        rooms.remove(room);
-    }
-
-    @Override
-    public String toString() {
-        return name;
-    }
-}
-
-class Room {
-    private String name;
-
-    public Room(String name) {
-        this.name = name;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    @Override
-    public String toString() {
-        return name;
     }
 }

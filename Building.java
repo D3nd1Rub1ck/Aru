@@ -5,6 +5,7 @@ class Building {
     private String name;
     private String streetName;
     private String houseNumber;
+    private int id;
     private double basicMonthlyPaymentPerSqM;
     //private static Room rum = new Room("testRoom", 100);
     private List <Room> rooms = new ArrayList<>();
@@ -24,6 +25,8 @@ class Building {
         this.basicMonthlyPaymentPerSqM = 100.0;
     }
 
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
     public String getStreetName() { return streetName; }
     public void setStreetName(String streetName) { this.streetName = streetName; }
     public String getHouseNumber() { return houseNumber; }

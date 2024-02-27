@@ -1,0 +1,6 @@
+{
+    "java.project.referencedLibraries": [
+        "lib/**/*.jar",
+        "C:/Users/lolit/Desktop/Java/endterm aru/postgresql-42.7.2.jar"
+    ]
+}

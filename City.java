@@ -3,12 +3,15 @@ import java.util.ArrayList;
 
 class City {
     private String name;
+    private int id;
     private List<Building> buildings = new ArrayList<>();
 
     public City(String name) { this.name = "City:" + name; }
     
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
+    public int getId() { return this.id; }
+    public void setId(int id) { this.id = id; }
     public List<Building> getBuildings() { return buildings; }
     public void addBuilding(Building building) { buildings.add(building); }
     public void removeBuilding(Building building) { buildings.remove(building); }

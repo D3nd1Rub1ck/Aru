@@ -3,6 +3,7 @@ import javax.swing.tree.*;
 import javax.swing.event.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.sql.*;
 
 // стандартный GUI классс TreeGUI в java 
 class TreeGUI extends JFrame {
@@ -29,7 +30,17 @@ class TreeGUI extends JFrame {
                     City city = new City(cityName); // создаем объект города 
                     DefaultMutableTreeNode cityNode = new DefaultMutableTreeNode(city); // Создаем ветку дерева 
                     rootNode.add(cityNode); // привязываем ветку к дереку а точнее к самому корню потому что это город 
-                    treeModel.reload(rootNode); // обновляем экран 
+                    treeModel.reload(rootNode); // обновляем экран
+                    try (Connection connection = PostgresDB.getConnection()) {
+                        String query = "INSERT INTO cities (city_name) VALUES (?)";
+                        try (PreparedStatement statement = connection.prepareStatement(query)) {
+                            statement.setString(1, cityName);
+                            statement.executeUpdate();
+                        }
+                    } catch (SQLException | ClassNotFoundException ex) {
+                        ex.printStackTrace();
+                        JOptionPane.showMessageDialog(null, "Error occurred while adding city.", "Error", JOptionPane.ERROR_MESSAGE);
+                    }
                 }
             }
         });
@@ -40,13 +51,27 @@ class TreeGUI extends JFrame {
                 String buildingName = JOptionPane.showInputDialog("Enter building name:");
                 if (buildingName != null && !buildingName.isEmpty()) {
                     Building building = new Building(buildingName);
-                    building.printBuilding();
+                    //building.printBuilding();
                     DefaultMutableTreeNode buildingNode = new DefaultMutableTreeNode(building);
                     if (selectedNode != null && selectedNode.getUserObject() instanceof City) { 
                         // если выбранная ветка подходит для записание к ней созданного объекта типа здание 
                         selectedNode.add(buildingNode);
                         treeModel.reload(selectedNode);
+                        String cityName = selectedNode.toString();
+                        int cityId = treeModel.getIndexOfChild(rootNode, selectedNode);
                         tree.expandPath(new TreePath(selectedNode.getPath()));
+                        try (Connection connection = PostgresDB.getConnection()) {
+                            String query = "INSERT INTO buildings (city_id, building_name, city_name) VALUES (?, ?, ?)";
+                            try (PreparedStatement statement = connection.prepareStatement(query)) {
+                                statement.setInt(1, cityId + 1);
+                                statement.setString(2, buildingName);
+                                statement.setString(3, cityName.substring(5));
+                                statement.executeUpdate();
+                            }
+                        } catch (SQLException | ClassNotFoundException ex) {
+                            ex.printStackTrace();
+                            JOptionPane.showMessageDialog(null, "Error occurred while adding building.", "Error", JOptionPane.ERROR_MESSAGE);
+                        }
                     } else {
                         // иначе говорим пользователю что он ничего не выбрал 
                         JOptionPane.showMessageDialog(null, "Please select a city to add a building.", "Error", JOptionPane.ERROR_MESSAGE);
@@ -68,7 +93,22 @@ class TreeGUI extends JFrame {
                     if (selectedNode != null && selectedNode.getUserObject() instanceof Building) {
                         selectedNode.add(roomNode);
                         treeModel.reload(selectedNode);
+                        String buildingName = selectedNode.toString();
+                        int buildingId = treeModel.getIndexOfChild(selectedNode.getParent(), selectedNode);
                         tree.expandPath(new TreePath(selectedNode.getPath()));
+                        try (Connection connection = PostgresDB.getConnection()) {
+                            String query = "INSERT INTO rooms (building_id, room_name, building_name, room_area) VALUES (?, ?, ?, ?)";
+                            try (PreparedStatement statement = connection.prepareStatement(query)) {
+                                statement.setInt(1, buildingId + 1);
+                                statement.setString(2, roomName);
+                                statement.setString(3, buildingName.substring(10));
+                                statement.setInt(4, 10);
+                                statement.executeUpdate();
+                            }
+                        } catch (SQLException | ClassNotFoundException ex) {
+                            ex.printStackTrace();
+                            JOptionPane.showMessageDialog(null, "Error occurred while adding room.", "Error", JOptionPane.ERROR_MESSAGE);
+                        }
                     } else {
                         JOptionPane.showMessageDialog(null, "Please select a building to add a room.", "Error", JOptionPane.ERROR_MESSAGE);
                     }
@@ -101,6 +141,57 @@ class TreeGUI extends JFrame {
         getContentPane().add(buttonPanel, BorderLayout.NORTH);
         getContentPane().add(scrollPane, BorderLayout.CENTER);
 
+        addDataFromDatabase();
+
         setVisible(true); // показывает все созданное 
+    }
+    private void addDataFromDatabase() {
+        // Подключаемся к базе данных
+        try (Connection connection = PostgresDB.getConnection()) {
+            // Выполняем запрос к базе данных для получения данных о городах
+            String query = "SELECT * FROM cities";
+            try (PreparedStatement statement = connection.prepareStatement(query);
+                 ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    String cityName = resultSet.getString("city_name");
+                    City city = new City(cityName);
+                    DefaultMutableTreeNode cityNode = new DefaultMutableTreeNode(city);
+                    rootNode.add(cityNode);
+
+                    // Для каждого города получаем данные о зданиях
+                    String buildingsQuery = "SELECT * FROM buildings WHERE city_name = ?";
+                    try (PreparedStatement buildingsStatement = connection.prepareStatement(buildingsQuery)) {
+                        buildingsStatement.setString(1, cityName);
+                        try (ResultSet buildingResultSet = buildingsStatement.executeQuery()) {
+                            while (buildingResultSet.next()) {
+                                String buildingName = buildingResultSet.getString("building_name");
+                                Building building = new Building(buildingName);
+                                DefaultMutableTreeNode buildingNode = new DefaultMutableTreeNode(building);
+                                cityNode.add(buildingNode);
+
+                                // Для каждого здания получаем данные о комнатах
+                                String roomsQuery = "SELECT * FROM rooms WHERE building_name = ?";
+                                try (PreparedStatement roomsStatement = connection.prepareStatement(roomsQuery)) {
+                                    roomsStatement.setString(1, buildingName);
+                                    try (ResultSet roomResultSet = roomsStatement.executeQuery()) {
+                                        while (roomResultSet.next()) {
+                                            String roomName = roomResultSet.getString("room_name");
+                                            int roomArea = roomResultSet.getInt("room_area");
+                                            Room room = new Room(roomName, roomArea);
+                                            DefaultMutableTreeNode roomNode = new DefaultMutableTreeNode(room);
+                                            buildingNode.add(roomNode);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (SQLException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        // Обновляем модель дерева для отображения новых данных
+        treeModel.reload(rootNode);
     }
 }
